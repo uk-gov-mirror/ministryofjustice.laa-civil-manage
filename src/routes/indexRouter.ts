@@ -5,6 +5,11 @@ import applicationsRouter from "#src/routes/applications.router.js";
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
 import { rateLimiter } from "#src/middleware/rateLimiter.js";
+import {
+  getHealth,
+  getLiveness,
+  getReadiness,
+} from "#src/controllers/healthController.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -13,17 +18,13 @@ if (process.env.SKIP_AUTH !== "true") {
   router.use("/auth", authRouter);
 }
 
-router.get("/status", (req: Request, res: Response): void => {
-  res.status(SUCCESSFUL_REQUEST).send("OK");
-});
-
 router.get("/session-timeout", (req: Request, res: Response): void => {
   res.status(SUCCESSFUL_REQUEST).render("errors/sessionTimeout");
 });
 
-router.get("/health", (req: Request, res: Response): void => {
-  res.status(SUCCESSFUL_REQUEST).send("Healthy");
-});
+router.get("/health", getHealth);
+router.get("/health/liveness", getLiveness);
+router.get("/health/readiness", getReadiness);
 
 if (process.env.SKIP_AUTH !== "true") {
   router.use(checkAuthToken);

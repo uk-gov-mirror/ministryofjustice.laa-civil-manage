@@ -89,6 +89,10 @@ This is an **Express 5 + TypeScript + Nunjucks** server-rendered app, run on **B
   `no-restricted-imports` in `eslint.config.js`).
 - Use GOV.UK Design System components/macros for all UI; avoid custom CSS/HTML where a GOV.UK Frontend
   component exists.
+- **Do not add code comments.** Write self-explanatory code (clear names, small functions) instead of
+  explaining it with comments. Do not add JSDoc/TSDoc blocks, inline `//` comments, or `/** */` block
+  comments to any new or edited code. Never remove or alter pre-existing comments in code you are not
+  otherwise touching.
 
 ### Naming
 

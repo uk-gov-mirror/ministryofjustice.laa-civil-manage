@@ -99,7 +99,7 @@ export default defineConfig({
         SESSION_SECRET: TEST_SESSION_SECRET,
         LOG_PRETTY: "true",
       },
-      url: "http://127.0.0.1:3000/status",
+      url: "http://127.0.0.1:3000/health/liveness",
       reuseExistingServer: false,
       stdout: "pipe",
       stderr: "pipe",

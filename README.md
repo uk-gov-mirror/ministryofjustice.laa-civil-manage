@@ -20,6 +20,7 @@ This repository is based on the LAA Express TypeScript template and includes:
 - [Scripts](#scripts)
 - [Testing](#testing)
 - [Security headers and CSP](#security-headers-and-csp)
+- [Health checks and system alerts](#health-checks-and-system-alerts)
 - [Docker](#docker)
 - [Project structure](#project-structure)
 - [License](#license)
@@ -187,6 +188,24 @@ Recommended values:
 - Any `<script>` tag has a nonce unless it is loaded from local bundled files where nonce is still preferred for consistency.
 - No `<script src="https://...">` third-party script URLs.
 - Any new third-party frontend library is installed as a dependency and copied/bundled into `public` during build.
+
+## Health checks and system alerts
+
+- **`/health`**: Pings the Redis instance backing sessions (`SESSION_REDIS_URL`). Returns `503`/`DOWN` if Redis is
+  unreachable — this is what we alert on (e.g. via Pingdom).
+- **`/health/liveness`, `/health/readiness`**: Kubernetes probes. These are static `200`/`UP` checks that never touch
+  Redis, so Kubernetes doesn't restart or evict pods over a Redis outage it can't fix.
+
+Note that `/health` only checks Redis, not the [laa-civil-manage-api](https://github.com/ministryofjustice/laa-civil-manage-api)
+backend that every `/applications` and `/prior-authority` route depends on. This is deliberate, not an oversight —
+`laa-civil-manage-api` has its own dedicated Pingdom check, so if the backend fails, only that alert fires. Combining
+both dependencies into one `/health` check would mean a single backend outage triggers alerts on both services at
+once. If the backend API is down, Kubernetes keeps the pod running — and `/health` will still report `UP` — even
+though most of the app is unusable. Kubernetes staying calm doesn't mean the app is fully functional; it just avoids
+making a bad situation worse.
+
+See `tests/unit/controllers/healthController.spec.ts` and `tests/unit/models/healthModels.spec.ts` for tests that
+document this behaviour.
 
 ## Docker
 
